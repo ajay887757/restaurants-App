@@ -20,15 +20,21 @@ class CustomUserCreate(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        data=request.data
-        user=data["username"]
-        email=data["email"]
-        password=data["password"]
-        data_exist=NewUser.objects.filter(user_name=user)
-        if data_exist.exists():
-            return Response({"message":"user already exist"})
+        serializer = CustomUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
 
-        usercreate=NewUser.objects.create(user_name=user,email=email,password=password)
+        # data=request.data
+        # user=data["username"]
+        # email=data["email"]
+        # password=data["password"]
+        # data_exist=NewUser.objects.filter(user_name=user)
+        # if data_exist.exists():
+        #     return Response({"message":"user already exist"})
+
+        # usercreate=NewUser.objects.create(user_name=user,email=email,password=password)
+
+        # setattr(usercreate,"hello","Django4")
        
         data={
         "Status" :"User Created Successfully"

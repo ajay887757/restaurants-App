@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# AUTH_USER_MODEL="restaurents.NewUser"
+AUTH_USER_MODEL="restaurents.NewUser"
 
 # Application definition
 

@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django_mysql.models import DynamicField, Model
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.hashers import make_password
 
-class CustomAccountManager(AbstractBaseUser):
+class UserManager(BaseUserManager):
     def create_superuser(self, user_name, password,**other_fields):
 
         other_fields.setdefault('is_staff', True)
@@ -15,9 +18,9 @@ class CustomAccountManager(AbstractBaseUser):
             raise ValueError(
                 'Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user( user_name, password,  **other_fields)
+        return self.create_user( user_name, password,**other_fields)
     
-    def create_user(self, user_name, password, **other_fields):
+    def create_user(self, user_name, password,**other_fields):
 
         user = self.model(user_name=user_name,
                           **other_fields)
@@ -26,7 +29,7 @@ class CustomAccountManager(AbstractBaseUser):
         return user
 
 
-class NewUser(models.Model):
+class NewUser(AbstractBaseUser, PermissionsMixin):
     user_name = models.CharField(max_length=150, unique=True)
     email=models.EmailField(max_length=100,null=True,blank=True)
     password=models.CharField(max_length=15)
@@ -35,11 +38,16 @@ class NewUser(models.Model):
     is_superuser=models.BooleanField(default=False)
 
     USERNAME_FIELD = 'user_name'
-    objects = CustomAccountManager()
+    objects = UserManager()
     REQUIRED_FIELDS = ['password']
 
-    def __str__(self):
-        return self.user_name
+    def save(self, *args, **kwargs):
+        if not self.is_superuser:
+            self.password = make_password(self.password)
+        # super().full_clean()
+        super().save(*args, **kwargs)
+
+    
 
 
 class restaurants(models.Model):
@@ -51,3 +59,15 @@ class otp(models.Model):
     user=models.ForeignKey(
         NewUser, on_delete=models.CASCADE, null=True, blank=True
     )
+
+
+# class FormField(Model):
+#     user=models.ForeignKey(
+#         NewUser, on_delete=models.CASCADE, null=True, blank=True
+#     )
+
+#     attrs = DynamicField(
+#         spec={
+#             "size": str,
+#         }
+#         )
