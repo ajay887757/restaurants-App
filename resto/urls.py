@@ -18,7 +18,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-    TokenVerifyView
+    TokenVerifyView,
+    TokenBlacklistView
 
 )
 from restaurents.views import *
@@ -30,6 +31,8 @@ urlpatterns = [
     path('restaurants_list/', restaurants_list.as_view(), name='restaurants_list'),
     path('forgetotp/', forget.as_view(), name='forget'),
     path('forgetPassword/', forgetPassword.as_view(), name='forgetPassword'),
+    path('logout/', Logout.as_view(), name='Logout'),
+    path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
 
 
 ]
