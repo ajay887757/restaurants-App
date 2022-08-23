@@ -28,11 +28,11 @@ class CustomUserCreate(APIView):
         user=data["username"]
         email=data["email"]
         password=data["password"]
-        data_exist=NewUser.objects.filter(user_name=user)
+        data_exist=NewUser.objects.filter(username=user)
         if data_exist.exists():
             return Response({"message":"user already exist"})
 
-        usercreate=NewUser.objects.create(user_name=user,email=email,password=password)
+        usercreate=NewUser.objects.create(username=user,email=email,password=password)
 
         setattr(usercreate,"hello","Django4")
        
@@ -47,21 +47,28 @@ class loginCustom(APIView):
         data = request.data
         username = data.get("username")
         password = data.get("password")
-        user_Data = NewUser.objects.filter(user_name=username,password=password)
-        if user_Data.exists():
-            if user_Data.first():
-                RefrestTokenData = RefreshToken.for_user(user_Data.first())
-                Token_Data = {
-                    "access": str(RefrestTokenData.access_token),
-                    "refresh": str(RefrestTokenData),
-                    "Message": "Token Generated Successfully",
-                }
+        
+        authuser=authenticate(username=username, password=password)
+        if authuser:
+            user_Data = NewUser.objects.filter(username=username)
+            if user_Data.exists():
+                if user_Data.first():
+                    RefrestTokenData = RefreshToken.for_user(user_Data.first())
+                    Token_Data = {
+                        "access": str(RefrestTokenData.access_token),
+                        "refresh": str(RefrestTokenData),
+                        "Message": "Token Generated Successfully",
+                    }
 
-                return Response(Token_Data, status=status.HTTP_200_OK)
-
-        return Response(
-            {"message": "Invalid user and password"}, status=status.HTTP_200_OK
-        )
+                    return Response(Token_Data, status=status.HTTP_200_OK)
+                
+            return Response(
+                {"message": "Invalid user and password"}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"message": "Invalid user and password"}, status=status.HTTP_200_OK
+            )
 
 class restaurants_list(APIView):
     def get(self,request):

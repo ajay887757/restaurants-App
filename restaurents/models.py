@@ -5,7 +5,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.hashers import make_password
 
 class UserManager(BaseUserManager):
-    def create_superuser(self, user_name, password,**other_fields):
+    def create_superuser(self, username, password,**other_fields):
 
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
@@ -18,11 +18,11 @@ class UserManager(BaseUserManager):
             raise ValueError(
                 'Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user( user_name, password,**other_fields)
+        return self.create_user( username, password,**other_fields)
     
-    def create_user(self, user_name, password,**other_fields):
+    def create_user(self, username, password,**other_fields):
 
-        user = self.model(user_name=user_name,
+        user = self.model(username=username,
                           **other_fields)
         user.set_password(password)
         user.save()
@@ -30,14 +30,14 @@ class UserManager(BaseUserManager):
 
 
 class NewUser(AbstractBaseUser, PermissionsMixin):
-    user_name = models.CharField(max_length=150, unique=True)
+    username = models.CharField(max_length=150, unique=True)
     email=models.EmailField(max_length=100,null=True,blank=True)
     password=models.CharField(max_length=15)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_superuser=models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'user_name'
+    USERNAME_FIELD = 'username'
     objects = UserManager()
     REQUIRED_FIELDS = ['password']
 
