@@ -5,7 +5,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.hashers import make_password
 
 class UserManager(BaseUserManager):
-    def create_superuser(self, username, password,**other_fields):
+    def create_superuser(self, username,email, password,**other_fields):
 
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
@@ -18,11 +18,11 @@ class UserManager(BaseUserManager):
             raise ValueError(
                 'Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user( username, password,**other_fields)
+        return self.create_user(username,email,password,**other_fields)
     
-    def create_user(self, username, password,**other_fields):
+    def create_user(self, username,email,password,**other_fields):
 
-        user = self.model(username=username,
+        user = self.model(username=username,email=email,
                           **other_fields)
         user.set_password(password)
         user.save()
@@ -39,7 +39,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
     objects = UserManager()
-    REQUIRED_FIELDS = ['password']
+    REQUIRED_FIELDS = ['email','password']
 
     def save(self, *args, **kwargs):
         if not self.is_superuser:
